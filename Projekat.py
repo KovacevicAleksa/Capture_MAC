@@ -19,11 +19,16 @@ run_command("sudo airmon-ng check kill")
 # Zatražiti korisnički unos za ime interfejsa
 interface = input("Unesite ime interfejsa: ")
 
+# Zatražiti korisnički unos za lokaciju
+location = input("Unesite naziv lokacije")
+
 # Aktivirati monitor mod
 run_command(f"sudo airmon-ng start {interface}")
 
 # Zatražiti korisnički unos za naziv datoteke
 filename = input("Unesite naziv datoteke: ")
+filename_with_location = f"{location}_{filename}"
+
 
 # Pokrenuti airodump-ng na određenom interfejsu
 run_command(f"sudo airodump-ng {interface}")
@@ -35,7 +40,7 @@ bssid = input("Unesite BSSID: ")
 channel = input("Unesite kanal: ")
 
 # Pokrenuti hvatanje klijenata u zasebnom thread-u
-capture_thread = threading.Thread(target=capture_clients, args=(interface, filename, bssid, channel))
+capture_thread = threading.Thread(target=capture_clients, args=(interface, filename_with_location, bssid, channel))
 capture_thread.start()
 
 
