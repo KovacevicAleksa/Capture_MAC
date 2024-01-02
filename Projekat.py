@@ -1,57 +1,36 @@
-import subprocess
-import threading
-import time
+from scapy.all import *
 
-# Definisati funkciju koja izvršava komandu
-def run_command(command):
-    subprocess.run(command.split())
+mac_addresses = set()
 
-# Definisati funkciju koja pokreće airodump-ng za hvatanje klijenata
-def capture_clients(interface, filename, bssid, channel):
-    run_command(f"sudo airodump-ng -w {filename} -c {channel} --bssid {bssid} {interface}")
+def sniff_packet(packet):
+    if packet.haslayer(Dot11):
+        if packet.type == 0 and packet.subtype == 4:  # Probe Request
+            mac_address = packet[Dot11].addr2
+            handle_probe_request(mac_address)
 
-# Prikazati informacije o bežičnom interfejsu
-run_command("iwconfig")
+def handle_probe_request(mac_address):
+    if mac_address == "00:00:00:00:00:00":
+        return  # Ignore invalid MAC addresses
 
-# Ubiti eventualne procese koji ometaju
-run_command("sudo airmon-ng check kill")
+    mac_addresses.add(mac_address)
+    print(f"MAC Address: {mac_address}")
 
-# Zatražiti korisnički unos za ime interfejsa
-interface = input("Unesite ime interfejsa: ")
+    # Check if the entered MAC address is in the set
+    if entered_mac_address.lower() == mac_address.lower():
+        print(f"Entered MAC Address {entered_mac_address} appeared!")
 
-# Zatražiti korisnički unos za lokaciju
-location = input("Unesite naziv lokacije")
+def main():
+    global entered_mac_address
+    interface = "wlan0"  # Postavite odgovarajući mrežni interfejs
 
-# Aktivirati monitor mod
-run_command(f"sudo airmon-ng start {interface}")
+    # Unos MAC adrese od strane korisnika
+    entered_mac_address = input("Unesite MAC adresu koju želite pratiti: ")
 
-# Zatražiti korisnički unos za naziv datoteke
-filename = input("Unesite naziv datoteke: ")
-filename_with_location = f"{location}_{filename}"
+    try:
+        print("Scanning for MAC addresses from Probe Requests. Press Ctrl+C to stop.")
+        sniff(prn=sniff_packet, iface=interface, store=0)
+    except KeyboardInterrupt:
+        print("Scanning stopped.")
 
-
-# Pokrenuti airodump-ng na određenom interfejsu
-run_command(f"sudo airodump-ng {interface}")
-
-# Zatražiti korisnički unos za željeni BSSID
-bssid = input("Unesite BSSID: ")
-
-# Zatražiti korisnički unos za željeni kanal
-channel = input("Unesite kanal: ")
-
-# Pokrenuti hvatanje klijenata u zasebnom thread-u
-capture_thread = threading.Thread(target=capture_clients, args=(interface, filename_with_location, bssid, channel))
-capture_thread.start()
-
-
-# Čekati dok traje hvatanje klijenata
-while capture_thread.is_alive():
-    pass
-
-# Sačekati korisnika da završi hvatanje handshake-a
-input("Pritisnite Enter da biste zaustavili hvatanje...")
-
-# Zaustaviti monitor mod na određenom interfejsu
-run_command(f"sudo airmon-ng stop {interface}")
-
-print("Monitor mod isključen.")
+if __name__ == "__main__":
+    main()
