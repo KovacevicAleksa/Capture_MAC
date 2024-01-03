@@ -1,6 +1,7 @@
 from scapy.all import *
+import time
 
-mac_addresses = set()
+mac_addresses = {}
 
 def sniff_packet(packet):
     if packet.haslayer(Dot11):
@@ -12,19 +13,26 @@ def handle_probe_request(mac_address):
     if mac_address == "00:00:00:00:00:00":
         return  # Ignore invalid MAC addresses
 
-    mac_addresses.add(mac_address)
-    print(f"MAC Address: {mac_address}")
+    current_time = time.strftime("%Y-%m-%d %H:%M:%S")
 
-    # Check if the entered MAC address is in the set
+    if mac_address not in mac_addresses:
+        # Prvi put viđena MAC adresa
+        mac_addresses[mac_address] = {"first_seen": current_time, "last_seen": current_time}
+    else:
+        # Ažuriraj vreme poslednjeg viđenja
+        mac_addresses[mac_address]["last_seen"] = current_time
+
     if entered_mac_address.lower() == mac_address.lower():
-        print(f"Entered MAC Address {entered_mac_address} appeared!")
+        print(f"\033[92mMAC Address: {mac_address}, First Seen: {mac_addresses[mac_address]['first_seen']}, Last Seen: {current_time}\033[0m")
+    else:
+        print(f"MAC Address: {mac_address}, First Seen: {mac_addresses[mac_address]['first_seen']}, Last Seen: {current_time}")
 
 def main():
     global entered_mac_address
-    interface = "wlan0"  # Postavite odgovarajući mrežni interfejs
+    interface = "wlan0"  # Set the appropriate network interface
 
-    # Unos MAC adrese od strane korisnika
-    entered_mac_address = input("Unesite MAC adresu koju želite pratiti: ")
+    # Input MAC address from the user
+    entered_mac_address = input("Enter the MAC address you want to track: ")
 
     try:
         print("Scanning for MAC addresses from Probe Requests. Press Ctrl+C to stop.")
