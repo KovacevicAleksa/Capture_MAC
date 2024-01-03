@@ -49,6 +49,7 @@ def start_sniffing_thread():
 # Tkinter GUI setup
 root = tk.Tk()
 root.title("MAC Address Tracker")
+root.geometry("500x500")  # Postavljanje fiksne veličine prozora
 
 mac_label = ttk.Label(root, text="Enter MAC address:")
 mac_label.pack(pady=10)
