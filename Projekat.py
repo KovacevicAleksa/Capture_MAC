@@ -19,17 +19,24 @@ def calculate_distance(rssi):
 # Tkinter GUI setup
 root = tk.Tk()
 root.title("MAC Address Tracker")
-root.geometry("500x600")  # Postavljanje fiksne veličine prozora
+root.geometry("550x400")  # Postavljanje fiksne veličine prozora
 
 mac_addresses = {}
 
 # Dodaj Canvas za crtanje linije i tačke
-canvas = tk.Canvas(root, width=400, height=10)
-canvas.pack(pady=10)
+canvas = tk.Canvas(root, width=415, height=30)
+canvas.pack(pady=15)
 
 line = canvas.create_line(0, 5, 400, 5, fill="black", width=2)  # Crna linija od 0m do 30m
 point = canvas.create_oval(0, 0, 10, 10, fill="red")  # Crvena tačka koja će se pomerati
 
+
+
+for i in range(1, 7):
+    position = i * 30 / 6  # Podeli liniju na 6 delova i postavi podeok na svaku 1/6 dužine
+    canvas.create_line(position * (400 / 30), 0, position * (400 / 30), 10, fill="black", width=2)
+    canvas.create_text(position * (400 / 30), 15, text=f"{int(position)}m", anchor="n")
+    
 def update_point(distance):
     # Ažuriraj poziciju tačke na osnovu udaljenosti
     normalized_distance = min(max(distance, 0), 30)  # Ograniči udaljenost na raspon od 0m do 30m
