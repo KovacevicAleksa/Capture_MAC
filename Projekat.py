@@ -55,7 +55,7 @@ def handle_probe_request(mac_address, rssi):
     global entered_mac_address
 
     if mac_address == "00:00:00:00:00:00":
-        return  # Ignore invalid MAC addresses
+        return  # Ignorisati invalid MAC addresses
 
     current_time = time.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -78,7 +78,7 @@ def handle_probe_request(mac_address, rssi):
 def start_sniffing():
     global entered_mac_address
     entered_mac_address = mac_entry.get()
-    interface = "wlan0"  # Set the appropriate network interface
+    interface = "wlan0" 
 
     try:
         print("Scanning for MAC addresses from Probe Requests. Press Ctrl+C to stop.")
