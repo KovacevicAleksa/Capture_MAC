@@ -1,3 +1,5 @@
+#pip install scapy
+#pip install tk
 from scapy.all import *
 import time
 import tkinter as tk
